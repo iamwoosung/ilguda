@@ -5,4 +5,6 @@ __pycache__/
 env/
 
 # 환경 변수 파일
-.env
+.env.production
+.env.development
+.env.local
