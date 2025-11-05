@@ -2,6 +2,7 @@ from typing import Dict, Any
 
 from models.job import Response, Job
 from utils.log_control import write_log, LogType
+from utils.utils import hash_string, parse_to_datetime
 
 class Parser:
     
@@ -49,3 +50,56 @@ class Parser:
         except Exception as e:
             write_log(LogType.ERROR, "Parser.parse_data", e) 
             return Response(body=[])
+        
+
+
+    @staticmethod
+    def get_procedure_params(data: Job) -> tuple:
+        try:
+            # 중복 방지를 위한 해시 생성
+            # 삼성생명보험(주)+한국장애인고용공단 서울동부지사+사무 보조원(일반사업체)+2025-10-28~2025-11-10
+            job_hash = hash_string(f"{data.buspla_name}+{data.regagn_name}+{data.job_nm}+{data.term_date}")
+            term_parts = data.term_date.split('~')
+            if not term_parts or len(term_parts) != 2:
+                raise ValueError("Invalid term_date format")
+            
+            job_recruit_start_date = parse_to_datetime(term_parts[0].replace('-', '')) if term_parts and term_parts[0] else None
+            job_recruit_end_date   = parse_to_datetime(term_parts[1].replace('-', '')) if len(term_parts) > 1 and term_parts[1] else None
+            job_offerreg_dt        = parse_to_datetime(data.offerreg_dt)
+            job_reg_dt             = parse_to_datetime(data.reg_dt)
+
+            if not all([job_hash, job_recruit_start_date, job_recruit_end_date, data.buspla_name, data.cntct_no,
+                data.comp_addr, data.emp_type, data.enter_type, data.job_nm, job_offerreg_dt, 
+                job_reg_dt, data.regagn_name, data.req_career, data.req_educ, data.rno,
+                data.rnum, data.salary, data.salary_type]):
+                raise ValueError("required fields are missing or invalid")
+
+            return (
+                job_hash, 
+                job_recruit_start_date, 
+                job_recruit_end_date,
+                data.buspla_name,
+                data.cntct_no,
+                data.comp_addr,
+                data.emp_type,
+                data.enter_type,
+                data.job_nm,
+                job_offerreg_dt, 
+                job_reg_dt, 
+                data.regagn_name,
+                data.req_career,
+                data.req_educ,
+                data.rno,
+                data.rnum,
+                data.salary,
+                data.salary_type, 
+                data.env_both_hands,
+                data.env_eyesight,
+                data.env_handwork,
+                data.env_lift_power,
+                data.env_lstn_talk,
+                data.env_stnd_walk
+            )
+        except Exception as e:
+            write_log(LogType.ERROR, "Parser.get_procedure_params", e)
+            return None

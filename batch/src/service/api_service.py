@@ -4,8 +4,11 @@ from typing import Dict, Any
 
 from utils.log_control import write_log, LogType
 from utils.parser import Parser
+from service.database_service import DatabaseService
 
 class APIService:
+
+
     # 초기화
     def __init__(self):
         try: 
@@ -21,6 +24,10 @@ class APIService:
             })
         except Exception as e:
             write_log(LogType.ERROR, "APIService.__init__", e)
+
+
+
+
 
     # API 정상 호출 가능한지 테스트용
     # 환경 변수 검증 및 total count 갱신
@@ -39,26 +46,42 @@ class APIService:
             write_log(LogType.ERROR, "APIService.is_valid_api_status", e)
             return False
         
-    # API 호출 및 DB 적재 프로세스 실행
-    def run_batch_process(self):
+
+
+
+
+    # API 호출 및 DB 저장 프로세스 실행
+    def run_batch_process(self, database_service: DatabaseService):
         try: 
             parser = Parser()
             page_no, num_of_rows   = 1, 10
             count, api_total_count = 0, self.api_total_count
 
+            write_log(LogType.INFO, "run_batch_process", "entering run_batch_process")
+
+
+            # API 순차적으로 호출
             while count < api_total_count:
                 api_response = self.get_response(page_no=page_no, num_of_rows=num_of_rows)
                 job_list     = parser.parse_data(api_response)
                 
                 # 10개 단위로 API 호출, 응답 데이터 DB 저장
                 for item in job_list.body:
-                    print(item.buspla_name) 
+                    params = parser.get_procedure_params(item)
+                    database_response = database_service.call_procedure(proc_name="AGENT_JOB_SET", args=params)
+                    write_log(LogType.INFO, "APIService.run_process_task", database_response)
 
                 page_no += 1
                 count   += len(job_list.body)
-                break
+                # break
+
+            database_service.close_pool()
         except Exception as e:
             write_log(LogType.ERROR, "APIService.run_process_task", e)
+
+
+
+
 
     # API 호출
     def get_response(self, page_no: int = 1, num_of_rows: int = 10, **kwargs) -> Dict[str, Any]:
@@ -83,6 +106,9 @@ class APIService:
         except Exception as e:
             write_log(LogType.ERROR, "APIService.get_data", e)
             return None
+
+
+
 
     # 세션 종료
     def close_session(self):

@@ -8,3 +8,6 @@ env/
 .env.production
 .env.development
 .env.local
+
+# 로그
+Log/

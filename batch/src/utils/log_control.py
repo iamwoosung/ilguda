@@ -28,7 +28,7 @@ def write_log(log_type: LogType, function_name: str, log_contents: str):
         log_filepath = get_log_filepath()
         timestamp_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
         log_entry = f"[{timestamp_str}] [{log_type.name}] {function_name}: {log_contents}"
-
+        print(log_entry)
         with open(log_filepath, 'a', encoding='utf-8') as f:
             f.write(log_entry + '\n')
     except Exception as e:

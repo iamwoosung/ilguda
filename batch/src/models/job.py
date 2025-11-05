@@ -28,6 +28,10 @@ class Job:
     env_lstn_talk  : Optional[str] = None  # 작업환경_듣고 말하기
     env_stnd_walk  : Optional[str] = None  # 작업환경_서거나 걷기
 
+
+
+
+
 @dataclass
 class Response:
     body: List[Job]
