@@ -61,7 +61,7 @@ class Parser:
             job_hash = hash_string(f"{data.buspla_name}+{data.regagn_name}+{data.job_nm}+{data.term_date}")
             term_parts = data.term_date.split('~')
             if not term_parts or len(term_parts) != 2:
-                raise ValueError("Invalid term_date format")
+                raise ValueError("invalid term_date format")
             
             job_recruit_start_date = parse_to_datetime(term_parts[0].replace('-', '')) if term_parts and term_parts[0] else None
             job_recruit_end_date   = parse_to_datetime(term_parts[1].replace('-', '')) if len(term_parts) > 1 and term_parts[1] else None
@@ -98,7 +98,8 @@ class Parser:
                 data.env_handwork,
                 data.env_lift_power,
                 data.env_lstn_talk,
-                data.env_stnd_walk
+                data.env_stnd_walk, 
+                1 # 생성 주체 (1: 배치, 2: APP, 3: 관리자)
             )
         except Exception as e:
             write_log(LogType.ERROR, "Parser.get_procedure_params", e)

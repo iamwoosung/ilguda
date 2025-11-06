@@ -68,8 +68,8 @@ class APIService:
                 # 10개 단위로 API 호출, 응답 데이터 DB 저장
                 for item in job_list.body:
                     params = parser.get_procedure_params(item)
-                    database_response = database_service.call_procedure(proc_name="AGENT_JOB_SET", args=params)
-                    write_log(LogType.INFO, "APIService.run_process_task", database_response)
+                    database_response = database_service.call_procedure(proc_name="BATCH_JOB_SET", args=params)
+                    write_log(LogType.INFO, "APIService.run_process_task", database_response[0])
 
                 page_no += 1
                 count   += len(job_list.body)
@@ -77,7 +77,7 @@ class APIService:
 
             database_service.close_pool()
         except Exception as e:
-            write_log(LogType.ERROR, "APIService.run_process_task", e)
+            write_log(LogType.ERROR, "APIService.run_batch_process", e)
 
 
 

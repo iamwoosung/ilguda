@@ -18,12 +18,12 @@ def get_log_filepath() -> str:
     
     log_dir = os.path.join(project_root, 'Log', year_month_str, day_str)
     os.makedirs(log_dir, exist_ok=True)
-    log_file_path = os.path.join(log_dir, 'Batch.log')
+    log_file_path = os.path.join(log_dir, 'Agent.log')
     
     return log_file_path
 
 # 로그 작성
-def write_log(log_type: LogType, function_name: str, log_contents: str):
+def write_log(log_type: LogType, function_name: str, log_contents: str) -> None:
     try:
         log_filepath = get_log_filepath()
         timestamp_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]

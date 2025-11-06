@@ -1,6 +1,9 @@
+DROP DATABASE IF EXISTS ILGUDA; 
 CREATE DATABASE ILGUDA DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 USE ILGUDA;
+
+
 
 CREATE TABLE Job (
     job_no INT AUTO_INCREMENT PRIMARY KEY COMMENT '순번 (Primary Key)',
@@ -28,24 +31,19 @@ CREATE TABLE Job (
     job_env_lift_power VARCHAR(100) COMMENT '작업환경_드는힘',
     job_env_lstn_talk VARCHAR(100) COMMENT '작업환경_듣고 말하기',
     job_env_stnd_walk VARCHAR(100) COMMENT '작업환경_서거나 걷기',
+    job_is_classified BOOL NOT NULL DEFAULT FALSE COMMENT '분류 여부', 
+    job_created_subject INTEGER NOT NULL DEFAULT 1 COMMENT '생성 주체 (1: 배치, 2: APP, 3: 관리자)', 
     job_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '생성 일시',
-    job_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일시'
+    job_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일시' 
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_general_ci
 COMMENT '채용 공고 정보 테이블`';
 
 
-USE `ilguda`;
-DROP procedure IF EXISTS `AGENT_JOB_SET`;
-
-USE `ilguda`;
-DROP procedure IF EXISTS `ilguda`.`AGENT_JOB_SET`;
-;
-
 DELIMITER //
 
-CREATE PROCEDURE AGENT_JOB_SET(
+CREATE PROCEDURE BATCH_JOB_SET(
     IN p_job_hash VARCHAR(64), 
     IN p_job_recruit_start_date DATETIME, 
     IN p_job_recruit_end_date DATETIME,   
@@ -69,7 +67,8 @@ CREATE PROCEDURE AGENT_JOB_SET(
     IN p_job_env_handwork VARCHAR(100),
     IN p_job_env_lift_power VARCHAR(100),
     IN p_job_env_lstn_talk VARCHAR(100),
-    IN p_job_env_stnd_walk VARCHAR(100)
+    IN p_job_env_stnd_walk VARCHAR(100), 
+    IN p_job_created_subject INTEGER 
 )
 BEGIN
     DECLARE v_IsValidHash INT;
@@ -85,7 +84,8 @@ BEGIN
             job_reg_date, job_regagn_name, job_req_career, job_req_educ, job_rno, 
             job_rnum, job_salary, job_salary_type, 
             job_env_both_hands, job_env_eyesight, job_env_handwork, 
-            job_env_lift_power, job_env_lstn_talk, job_env_stnd_walk
+            job_env_lift_power, job_env_lstn_talk, job_env_stnd_walk, 
+            job_created_subject
         )
         VALUES (
             p_job_hash, 
@@ -94,7 +94,8 @@ BEGIN
             p_job_reg_date, p_job_regagn_name, p_job_req_career, p_job_req_educ, p_job_rno, 
             p_job_rnum, p_job_salary, p_job_salary_type, 
             p_job_env_both_hands, p_job_env_eyesight, p_job_env_handwork, 
-            p_job_env_lift_power, p_job_env_lstn_talk, p_job_env_stnd_walk
+            p_job_env_lift_power, p_job_env_lstn_talk, p_job_env_stnd_walk, 
+            p_job_created_subject
         );
         SELECT LAST_INSERT_ID() AS job_no, 'INSERTED' AS status, p_job_hash AS job_hash; 
     END IF;
