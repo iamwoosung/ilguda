@@ -10,9 +10,9 @@ from service.database_service import DatabaseService
 def run_agent_task(openai_service: APIService,database_service: DatabaseService) -> None:
     try:
         # API 상태 체크
-        #api_status = openai_service.is_valid_openai_api_status()
-        #if not api_status:
-        #    raise ValueError("invalid openai api service status")
+        api_status = openai_service.is_valid_openai_api_status()
+        if not api_status:
+            raise ValueError("invalid openai api service status")
         
         # DB 상태 체크
         database_status = database_service.is_valid_database_status()
@@ -25,8 +25,8 @@ def run_agent_task(openai_service: APIService,database_service: DatabaseService)
     except Exception as e:
         write_log(LogType.ERROR, "run_agent_task", e)
     finally:
-        #if openai_service:
-        #    openai_service.close_session()
+        if openai_service:
+            openai_service.close_session()
         if database_service:
             database_service.close_pool()
 
