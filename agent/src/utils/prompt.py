@@ -23,7 +23,7 @@ def get_prompt(job: Job) -> str:
     }
     job_details = f"""
         [채용 공고 상세 정보]
-        1. 모집 직종: {job.job_nm}
+        1. 모집 직종: {job.job_job_nm}
         2. 사업장명 및 주소: {job.job_buspla_name} 
 
         [작업 환경 요구 사항 (없을 경우 'None' 출력)]

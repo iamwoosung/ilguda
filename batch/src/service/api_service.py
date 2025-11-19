@@ -73,7 +73,6 @@ class APIService:
 
                 page_no += 1
                 count   += len(job_list.body)
-                # break
 
             database_service.close_pool()
         except Exception as e:

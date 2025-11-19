@@ -45,7 +45,6 @@ class Parser:
                         env_stnd_walk  =     item_data.get('envStndWalk') 
                     )
                     item_list.append(item)
-            
             return Response(body=item_list)
         except Exception as e:
             write_log(LogType.ERROR, "Parser.parse_data", e) 

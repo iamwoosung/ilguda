@@ -43,6 +43,32 @@ CREATE TABLE Job (
 COMMENT '채용 공고 정보 테이블`';
 
 
+CREATE TABLE job_classify (
+    jpc_no INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '직무별 장애 조건 분류 고유번호',
+    jpc_physical_disability BOOL NOT NULL COMMENT '지체장애 수행 가능 여부',
+    jpc_brain_lesion BOOL NOT NULL COMMENT '뇌병변장애 수행 가능 여부',
+    jpc_visual_impairment BOOL NOT NULL COMMENT '시각장애 수행 가능 여부',
+    jpc_hearing_impairment BOOL NOT NULL COMMENT '청각장애 수행 가능 여부',
+    jpc_speech_disorder BOOL NOT NULL COMMENT '언어장애 수행 가능 여부',
+    jpc_facial_deformity BOOL NOT NULL COMMENT '안면장애 수행 가능 여부',
+    jpc_kidney_disorder BOOL NOT NULL COMMENT '신장장애 수행 가능 여부',
+    jpc_cardiac_disorder BOOL NOT NULL COMMENT '심장장애 수행 가능 여부',
+    jpc_liver_disorder BOOL NOT NULL COMMENT '간장애 수행 가능 여부',
+    jpc_respiratory_disorder BOOL NOT NULL COMMENT '호흡기장애 수행 가능 여부',
+    jpc_urinary_diversion BOOL NOT NULL COMMENT '장루, 요루 장애 수행 가능 여부',
+    jpc_epilepsy BOOL NOT NULL COMMENT '간질장애 수행 가능 여부',
+    jpc_intellectual_disability BOOL NOT NULL COMMENT '지적장애 수행 가능 여부',
+    jpc_autism BOOL NOT NULL COMMENT '자폐성장애 수행 가능 여부',
+    jpc_mental_illness BOOL NOT NULL COMMENT '정신장애 수행 가능 여부',
+    jpc_job_no INT NOT NULL COMMENT '채용 공고 고유번호 (FK)',
+    
+    FOREIGN KEY (jpc_job_no) REFERENCES job (job_no)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_general_ci
+COMMENT '채용 공고의 장애 유형별 업무 가능 여부 분류 테이블`';
+
+
 DELIMITER //
 
 CREATE PROCEDURE BATCH_JOB_SET(
@@ -108,12 +134,69 @@ DELIMITER ;
 
 DELIMITER //
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `AGENT_JOB_CLASSIFIED_GET`(
-    
+CREATE DEFINER=`root`@`localhost` PROCEDURE `AGENT_JOB_CLASSIFIED_SET`(
+    IN p_jpc_job_no INT,
+    IN p_jpc_physical_disability BOOL,
+    IN p_jpc_brain_lesion BOOL,
+    IN p_jpc_visual_impairment BOOL,
+    IN p_jpc_hearing_impairment BOOL,
+    IN p_jpc_speech_disorder BOOL,
+    IN p_jpc_facial_deformity BOOL,
+    IN p_jpc_kidney_disorder BOOL,
+    IN p_jpc_cardiac_disorder BOOL,
+    IN p_jpc_liver_disorder BOOL,
+    IN p_jpc_respiratory_disorder BOOL,
+    IN p_jpc_urinary_diversion BOOL,
+    IN p_jpc_epilepsy BOOL,
+    IN p_jpc_intellectual_disability BOOL,
+    IN p_jpc_autism BOOL,
+    IN p_jpc_mental_illness BOOL
 )
 BEGIN
-    SELECT * FROM JOB WHERE job_is_classified = 0;
-    
-END //
-DELIMITER ;
 
+	IF (SELECT job_is_classified FROM JOB WHERE job_no = p_jpc_job_no) = 1 THEN
+		SELECT p_jpc_job_no AS job_no, 'ALREADY_EXISTS' AS status; 
+	ELSE 
+		INSERT INTO job_physical_condition (
+			jpc_job_no,
+			jpc_physical_disability,
+			jpc_brain_lesion,
+			jpc_visual_impairment,
+			jpc_hearing_impairment,
+			jpc_speech_disorder,
+			jpc_facial_deformity,
+			jpc_kidney_disorder,
+			jpc_cardiac_disorder,
+			jpc_liver_disorder,
+			jpc_respiratory_disorder,
+			jpc_urinary_diversion,
+			jpc_epilepsy,
+			jpc_intellectual_disability,
+			jpc_autism,
+			jpc_mental_illness
+		)
+		VALUES (
+			p_jpc_job_no,
+			p_jpc_physical_disability,
+			p_jpc_brain_lesion,
+			p_jpc_visual_impairment,
+			p_jpc_hearing_impairment,
+			p_jpc_speech_disorder,
+			p_jpc_facial_deformity,
+			p_jpc_kidney_disorder,
+			p_jpc_cardiac_disorder,
+			p_jpc_liver_disorder,
+			p_jpc_respiratory_disorder,
+			p_jpc_urinary_diversion,
+			p_jpc_epilepsy,
+			p_jpc_intellectual_disability,
+			p_jpc_autism,
+			p_jpc_mental_illness
+		);
+        UPDATE job SET job_is_classified = 1 WHERE job_no = p_jpc_job_no;
+		SELECT p_jpc_job_no AS job_no, 'INSERTED' AS status; 
+    END IF;
+
+END //
+
+DELIMITER ;

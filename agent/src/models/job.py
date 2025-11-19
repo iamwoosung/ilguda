@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 from datetime import datetime
 
-@dataclass
+@dataclass(kw_only=True)
 class Job:
     job_no: int
     job_hash: str
@@ -13,7 +13,7 @@ class Job:
     job_comp_addr: str
     job_emp_type: str
     job_enter_type: str
-    job_nm: str
+    job_job_nm: str
     job_offer_reg_date: datetime
     job_reg_date: datetime
     job_regagn_name: str
@@ -25,10 +25,6 @@ class Job:
     job_salary_type: str
 
     # 작업 환경 필드
-    job_is_classified: int
-    job_created_subject: int
-    job_created_at: datetime
-    job_updated_at: datetime
         
     job_env_both_hands: Optional[str] = None
     job_env_eyesight: Optional[str] = None
@@ -37,7 +33,10 @@ class Job:
     job_env_lstn_talk: Optional[str] = None
     job_env_stnd_walk: Optional[str] = None
     
-
+    job_is_classified: int
+    job_created_subject: int
+    job_created_at: datetime
+    job_updated_at: datetime
 
 
 

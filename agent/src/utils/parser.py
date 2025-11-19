@@ -1,5 +1,6 @@
 from typing import Dict, Any, Optional
 
+from models.job import Job
 from models.job_classify import JobClassify 
 from utils.log_control import write_log, LogType
 
@@ -32,16 +33,51 @@ class Parser:
                 return None
         
     @staticmethod
-    def get_procedure_params(data: JobClassify) -> tuple:
+    def get_test_classify_model() -> Optional[JobClassify]:
+        validated_data: Dict[str, bool] = {
+            'PhysicalDisability'    : False, 
+            'BrainLesion'           : True, 
+            'VisualImpairment'      : True, 
+            'HearingImpairment'     : False, 
+            'SpeechDisorder'        : False, 
+            'FacialDeformity'       : True, 
+            'KidneyDisorder'        : True, 
+            'CardiacDisorder'       : True, 
+            'LiverDisorder'         : True, 
+            'RespiratoryDisorder'   : True, 
+            'UrinaryDiversion'      : True, 
+            'Epilepsy'              : True, 
+            'IntellectualDisability': True, 
+            'Autism'                : True, 
+            'MentalIllness'         : True
+        }
+        return JobClassify(**validated_data)
+ 
+    
+    @staticmethod
+    def get_procedure_params(job: Job, job_classify: JobClassify) -> tuple:
         try:
-            if data is None:
-                raise ValueError("data is None")
+            if job is None or job_classify is None:
+                raise ValueError("parameter is None")
             
-            item_list = []
-            for field in JobClassify.__dataclass_fields__.keys():
-                item = getattr(data, field)
-                if not isinstance(item, bool):
-                    raise ValueError(f"invalid type for field '{field}': expected bool")
+            return (
+                job.job_no, 
+                job_classify.PhysicalDisability, 
+                job_classify.BrainLesion, 
+                job_classify.VisualImpairment, 
+                job_classify.HearingImpairment, 
+                job_classify.SpeechDisorder, 
+                job_classify.FacialDeformity, 
+                job_classify.KidneyDisorder, 
+                job_classify.CardiacDisorder, 
+                job_classify.LiverDisorder, 
+                job_classify.RespiratoryDisorder, 
+                job_classify.UrinaryDiversion, 
+                job_classify.Epilepsy, 
+                job_classify.IntellectualDisability, 
+                job_classify.Autism, 
+                job_classify.MentalIllness
+            )
         except Exception as e:
             write_log(LogType.ERROR, "Parser.get_procedure_params", e) 
-            return ()
+            return None

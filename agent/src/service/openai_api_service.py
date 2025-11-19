@@ -2,6 +2,7 @@ import os
 import json
 import openai
 
+from dataclasses import fields
 from utils.log_control import write_log, LogType
 from utils.prompt import get_prompt, get_system_prompt
 from models.job import Job, Response
@@ -48,35 +49,34 @@ class APIService:
             write_log(LogType.INFO, "run_agent_process", "entering run_agent_process")
 
             database_response = database_service.call_procedure("AGENT_JOB_CLASSIFIED_GET")
-            job_list: Response = Response(body=[Job(*row) for row in database_response])
+            job_list: Response = Response(body=[Job(**dict(zip([field.name for field in fields(Job)], row))) for row in database_response])
             MAX_ATTEMPTS = 5
-
             cnt = 0
-
             
             for job in job_list.body:
                 job_model = None
                 for attempt in range(MAX_ATTEMPTS):
                     openai_response = self.get_openai_response(get_prompt(job), get_system_prompt())
                     job_model = parser.validate_openai_response(openai_response) 
+                    #job_model = parser.get_test_classify_model()
                     if job_model is not None:
                         break
                 if job_model is None:
                     write_log(LogType.ERROR, "APIService.run_agent_process", f"job_no: {job.job_no} failed")
                     continue
 
-                print(job_model)
+                params = parser.get_procedure_params(job, job_model)
+                database_classify_response = database_service.call_procedure(proc_name="AGENT_JOB_CLASSIFIED_SET", args=params)
+                write_log(LogType.INFO, "APIService.run_agent_process", database_classify_response[0])
 
-
-                
-                cnt = cnt + 1
-                if cnt == 1: 
-                    break
-
+                # test break point
+                #cnt = cnt + 1
+                #if cnt == 5: 
+                #    break
 
             database_service.close_pool()
         except Exception as e:
-            write_log(LogType.ERROR, "APIService.run_batch_process", e)
+            write_log(LogType.ERROR, "APIService.run_agent_process", e)
 
 
 
