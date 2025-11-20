@@ -1,0 +1,13 @@
+# Python 관련
+*.pyc
+__pycache__/
+.venv/
+env/
+
+# 환경 변수 파일
+.env.production
+.env.development
+.env.local
+
+# 로그
+Log/

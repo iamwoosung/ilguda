@@ -1,6 +1,5 @@
 python-dotenv
-openai
-request
 pymysql
 sqlalchemy
-cryptography
+fastapi
+strawberry-graphql[asgi]
