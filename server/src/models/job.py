@@ -1,7 +1,10 @@
+import strawberry
+
 from dataclasses import dataclass
 from typing import List, Optional
 from datetime import datetime
 
+@strawberry.type()
 @dataclass(kw_only=True)
 class Job:
     job_no: int
@@ -32,13 +35,8 @@ class Job:
     job_env_lstn_talk: Optional[str] = None
     job_env_stnd_walk: Optional[str] = None
     
-    job_is_classified: int
-    job_created_subject: int
-    job_created_at: datetime
-    job_updated_at: datetime
+    # job_is_classified: int
+    # job_created_subject: int
+    # job_created_at: datetime
+    # job_updated_at: datetime
 
-
-
-@dataclass
-class Response:
-    body: List[Job]

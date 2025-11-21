@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, Any, List, Tuple
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
@@ -45,8 +45,34 @@ class DatabaseService:
             self.engine = None 
         return self.is_connected
     
-    def test(self) -> bool:
-        return self.is_connected
+
+    
+    # 프로시저 호출
+    def call_procedure(self, proc_name: str, args: tuple = ()) -> List[Tuple[Any, ...]]:
+        result: List[Tuple[Any, ...]] = []
+        try:
+            if not self.is_connected or not self.engine:
+                raise RuntimeError("database is not connected or invalid")
+            with self.engine.connect() as conn:
+                raw_conn = conn.connection
+                cursor = raw_conn.cursor()
+                cursor.callproc(proc_name, args)
+                result = cursor.fetchall()
+                raw_conn.commit()
+        except Exception as e:
+            write_log(LogType.ERROR, "DatabaseService.call_procedure", e)
+        return result
+
+
+
+
+    # 커넥션 풀 종료
+    def close_pool(self) -> None:
+        try:
+            if self.engine:
+                self.engine.dispose()
+        except Exception as e:
+            write_log(LogType.ERROR, "DatabaseService.close_pool", e)
     
 # 싱글톤
 db_instance = None

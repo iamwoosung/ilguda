@@ -30,6 +30,7 @@ class GraphQLService:
 
     def run_server(self) -> None:
         try: 
+            # GraphQL 요청 Default는 카멜 표기법
             graphql_schema = strawberry.Schema(query=Query)
             graphql_router = GraphQLRouter(graphql_schema, path="/graphql", graphiql=True)
 

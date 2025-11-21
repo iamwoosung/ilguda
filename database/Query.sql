@@ -200,3 +200,104 @@ BEGIN
 END //
 
 DELIMITER ;
+
+DELIMITER //
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SERVER_JOB_LIST_GET`(
+    IN p_jobBusplaName VARCHAR(50),
+    IN p_jobCompAddr VARCHAR(150),
+    IN p_jobRecruitStartDate DATETIME,
+    IN p_jobRecruitEndDate DATETIME,
+    IN p_jobEmpType VARCHAR(50),
+    IN p_jobEnterType VARCHAR(50),
+    IN p_jobReqCareer VARCHAR(50),
+    IN p_jobReqEduc VARCHAR(50),
+    IN p_jobSalaryType VARCHAR(50)
+)
+BEGIN
+    -- 결과를 저장할 변수
+    SET @sql = '
+        SELECT
+			job_no,
+			job_hash,
+			job_recruit_start_date,
+			job_recruit_end_date,
+			job_buspla_name,
+			job_cntct_no,
+			job_comp_addr,
+			job_emp_type,
+			job_enter_type,
+			job_job_nm,
+			job_offer_reg_date,
+			job_reg_date,
+			job_regagn_name,
+			job_req_career,
+			job_req_educ,
+			job_rno,
+			job_rnum,
+			job_salary,
+			job_salary_type,
+			job_env_both_hands,
+			job_env_eyesight,
+			job_env_handwork,
+			job_env_lift_power,
+			job_env_lstn_talk,
+			job_env_stnd_walk
+		FROM Job
+		WHERE 1=1';
+
+    -- 1. LIKE 검색 조건 추가 (사업장명)
+    IF p_jobBusplaName IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND job_buspla_name LIKE ''%', p_jobBusplaName, '%''');
+    END IF;
+
+    -- 2. LIKE 검색 조건 추가 (사업장 주소)
+    IF p_jobCompAddr IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND job_comp_addr LIKE ''%', p_jobCompAddr, '%''');
+    END IF;
+    
+    -- 3. 날짜 범위 검색 조건 추가 (시작일)
+    -- job_recruit_start_date가 파라미터보다 크거나 같아야 함
+    IF p_jobRecruitStartDate IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND job_recruit_start_date >= ''', DATE_FORMAT(p_jobRecruitStartDate, '%Y-%m-%d %H:%i:%s'), '''');
+    END IF;
+
+    -- 4. 날짜 범위 검색 조건 추가 (종료일)
+    -- job_recruit_end_date가 파라미터보다 작거나 같아야 함
+    IF p_jobRecruitEndDate IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND job_recruit_end_date <= ''', DATE_FORMAT(p_jobRecruitEndDate, '%Y-%m-%d %H:%i:%s'), '''');
+    END IF;
+
+    -- 5. Equals 검색 조건 추가 (고용 형태)
+    IF p_jobEmpType IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND job_emp_type = ''', p_jobEmpType, '''');
+    END IF;
+    
+    -- 6. Equals 검색 조건 추가 (입사 형태)
+    IF p_jobEnterType IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND job_enter_type = ''', p_jobEnterType, '''');
+    END IF;
+    
+    -- 7. Equals 검색 조건 추가 (요구 경력)
+    IF p_jobReqCareer IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND job_req_career = ''', p_jobReqCareer, '''');
+    END IF;
+    
+    -- 8. Equals 검색 조건 추가 (요구 학력)
+    IF p_jobReqEduc IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND job_req_educ = ''', p_jobReqEduc, '''');
+    END IF;
+    
+    -- 9. Equals 검색 조건 추가 (임금 형태)
+    IF p_jobSalaryType IS NOT NULL THEN
+        SET @sql = CONCAT(@sql, ' AND job_salary_type = ''', p_jobSalaryType, '''');
+    END IF;
+
+    -- 최종 SQL 쿼리 실행
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+
+END //
+
+DELIMITER ;
