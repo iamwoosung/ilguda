@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
 
 from utils.log_control import write_log, LogType
-from schema.query import Query
+from schema.schema import Query
 
 class GraphQLService:
     

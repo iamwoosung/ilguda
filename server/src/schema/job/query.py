@@ -22,7 +22,7 @@ class JobQuery():
             jobReqCareer        : Optional[str]= None,
             jobReqEduc          : Optional[str]= None,
             jobSalaryType       : Optional[str]= None, 
-            userID              : str = None
+            userID              : Optional[str]= None
         ) -> List[Job]:
         try: 
 
@@ -31,13 +31,10 @@ class JobQuery():
 
             # 2. 튜플 인자 생성 (MySQL 프로시저의 파라미터 순서와 일치시켜야 함!)
             proc_args = (
-                # 1) LIKE 검색:
                 jobBusplaName, 
                 jobCompAddr,
-                # 2) DATETIME 검색:
                 start_dt_str, 
                 end_dt_str,
-                # 3) EQUALS 검색:
                 jobEmpType, 
                 jobEnterType,
                 jobReqCareer,
